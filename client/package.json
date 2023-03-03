@@ -1,0 +1,13 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "aws s3 rm s3://paul-s3-training/ --recursive --profile training && aws s3 cp ./dist s3://paul-s3-training --recursive --acl public-read --profile training"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
