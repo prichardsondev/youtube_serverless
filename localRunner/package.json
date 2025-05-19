@@ -1,0 +1,20 @@
+{
+  "name": "localrunner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "esbuild.config.js",
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "test:bundle": "npm run build && node testBundledHandler.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/lib-dynamodb": "^3.799.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.3"
+  }
+}
