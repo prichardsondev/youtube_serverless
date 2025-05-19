@@ -1,4 +1,4 @@
-const stageUrl = "https://ssxualcol8.execute-api.us-east-1.amazonaws.com/dev/youtube";
+const stageUrl = "your-api-gateway-url"; // Replace with your API Gateway URL
 
 function getToken() {
   return new URLSearchParams(window.location.hash.slice(1)).get("id_token");
