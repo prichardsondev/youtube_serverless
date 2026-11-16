@@ -8,37 +8,38 @@
   </head>
   <body>
     <main class="main-container">
-      <h1>AWS Playlist Builder</h1><p>Save songs and build a playlist by genre and rating. Use the same case for usernames and genres each time.</p><p id="status" role="status" aria-live="polite"></p><p><a id="playlist-link" hidden target="_blank" rel="noopener noreferrer">Open playlist on YouTube</a></p>
+      <h1>AWS Playlist Builder</h1><p>Paste the API address Paul helps you create, then try the three steps below. The sample names and email are fictional.</p><p id="status" role="status" aria-live="polite"></p>
 
+      <section class="card"><h2>Your API address</h2><form id="api-settings" onsubmit="event.preventDefault(); saveApiAddress()"><label>API address<input id="api-url" type="url" required placeholder="https://your-api.execute-api.us-east-1.amazonaws.com/class" aria-describedby="address-help"></label><p id="address-help">Copy the invoke URL from your API Gateway <strong>class</strong> stage. Saving it does not create records.</p><button type="submit">Save address</button><button type="button" onclick="clearApiAddress()">Clear address</button><p role="status" aria-live="polite"></p></form></section>
       <section class="card">
-        <h2>Create User</h2>
+        <h2>1. Save the sample user</h2>
         <form id="userdata" class="form" onsubmit="event.preventDefault(); addUser()">
-          <label>Full Name<input type="text" name="name" placeholder="Full Name" required /></label>
-          <label>Username<input type="text" name="username" placeholder="Username" required /></label>
-          <label>Email<input type="email" name="email" placeholder="Email" required /></label>
-          <button type="submit">Submit</button>
-        </form>
+          <label>Full Name<input type="text" name="name" value="Student 01" placeholder="Full Name" required /></label>
+          <label>Username<input type="text" name="username" value="STUDENT01" placeholder="Username" required /></label>
+          <label>Email<input type="email" name="email" value="student01@example.com" placeholder="Email" required /></label>
+          <button type="submit">Save user</button>
+        <p role="status" aria-live="polite"></p></form>
       </section>
 
       <section class="card">
-        <h2>Add Song</h2>
+        <h2>2. Save a song</h2>
         <form id="songdata" class="form" onsubmit="event.preventDefault(); addSong()">
-          <label>Username<input type="text" name="user" placeholder="Username" required /></label>
-          <label>Song ID<input type="text" name="songid" placeholder="Song ID" required /></label>
-          <label>Genre<input type="text" name="genre" placeholder="Genre" required /></label>
-          <label>Stars (1–5)<input type="number" min="1" max="5" step="1" name="stars" placeholder="Stars (1–5)" required /></label>
-          <button type="submit">Submit</button>
-        </form>
+          <label>Username<input type="text" name="user" value="STUDENT01" placeholder="Username" required /></label>
+          <label>Song ID<input type="text" name="songid" value="Fr7oYjnt3bM" placeholder="Song ID" required /></label>
+          <label>Genre<input type="text" name="genre" value="ROCK" placeholder="Genre" required /></label>
+          <label>Stars (1–5)<input type="number" min="1" max="5" step="1" name="stars" value="5" placeholder="Stars (1–5)" required /></label>
+          <button type="submit">Save song</button>
+        <p role="status" aria-live="polite"></p></form>
       </section>
 
       <section class="card">
-        <h2>Get Playlist</h2>
+        <h2>3. Open the playlist</h2>
         <form id="playlistdata" class="form" onsubmit="event.preventDefault(); getPlaylist()">
-          <label>Username<input type="text" name="user" placeholder="Username" required /></label>
-          <label>Genre<input type="text" name="genre" placeholder="Genre" required /></label>
-          <label>Stars (1–5)<input type="number" min="1" max="5" step="1" name="stars" placeholder="Stars (1–5)" required /></label>
-          <button type="submit">Submit</button>
-        </form>
+          <label>Username<input type="text" name="user" value="STUDENT01" placeholder="Username" required /></label>
+          <label>Genre<input type="text" name="genre" value="ROCK" placeholder="Genre" required /></label>
+          <label>Stars (1–5)<input type="number" min="1" max="5" step="1" name="stars" value="5" placeholder="Stars (1–5)" required /></label>
+          <button type="submit">Get playlist</button><a id="playlist-link" hidden target="_blank" rel="noopener noreferrer">Open playlist on YouTube</a>
+        <p role="status" aria-live="polite"></p></form>
       </section>
     </main>
 

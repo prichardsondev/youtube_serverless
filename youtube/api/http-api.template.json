@@ -225,7 +225,7 @@
   },
   "Outputs": {
     "ApiBaseUrl": {
-      "Description": "Set frontend/index.js stageUrl to this complete URL, including /class.",
+      "Description": "Paste this complete URL into the frontend API address field, including /class.",
       "Value": {
         "Fn::Sub": "${PlaylistApi.ApiEndpoint}/class"
       }

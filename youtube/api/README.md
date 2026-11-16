@@ -38,7 +38,7 @@ Upload `http-api.template.json` to CloudFormation → Create stack → With new 
 
 The template creates the HTTP API, three proxy integrations/routes, a named class stage, a log group and scoped Lambda invocation permissions. It does not create or replace Lambda functions, roles or DynamoDB tables. It attaches individual Lambda permission statements; do not simultaneously manage those same function policies with AWS::Lambda::ResourcePolicy. The deployment identity needs API Gateway/CloudFormation permissions, Lambda AddPermission/RemovePermission and CloudWatch Logs delivery/configuration permissions.
 
-After CREATE_COMPLETE, copy the ApiBaseUrl output into frontend/index.js as stageUrl. Deployment creates a public unauthenticated API; use only the assigned demo table and fictional records. The username is caller-supplied, so this is not a production multi-user access model. Add verified identity and ownership enforcement before real-user use. CORS and throttling do not provide authentication or ownership checks.
+After CREATE_COMPLETE, paste the ApiBaseUrl output into the frontend’s API address field and choose Save address. Deployment creates a public unauthenticated API; use only the assigned demo table and fictional records. The username is caller-supplied, so this is not a production multi-user access model. Add verified identity and ownership enforcement before real-user use. CORS and throttling do not provide authentication or ownership checks.
 
 ## Test from a client
 
@@ -74,7 +74,7 @@ node api/smoke.mjs "$API_BASE" 'https://YOUR_FRONTEND_HOST' --write
 
 ## Connect the browser
 
-Set `stageUrl` in `frontend/index.js` to the full API stage URL, without an extra route. Serve the frontend through your approved web host. For a local frontend-only preview, `cd frontend` then `python3 -m http.server 8000`; open http://localhost:8000 and configure that exact allowed origin. This serves static files; it does not use localRunner or emulate AWS. Do not open index.html as a file:// URL.
+Paste the full API stage URL into the page’s API address field and choose Save address. Learners do not edit code. Serve the frontend through your approved web host. For a local frontend-only preview, `cd frontend` then `python3 -m http.server 8000`; open http://localhost:8000 and configure that exact allowed origin. This serves static files; it does not use localRunner or emulate AWS. Do not open index.html as a file:// URL.
 
 Try all three forms and inspect the browser Network panel. POST JSON usually triggers an OPTIONS preflight. The app displays API failures and provides a clickable YouTube playlist link. Keep the same case for names/genres. Last week's VIDEO001 placeholders are filtered; use a real video ID.
 
