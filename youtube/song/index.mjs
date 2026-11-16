@@ -1,35 +1,13 @@
 import { createSongData } from "./createSongData.mjs";
 import { Song } from "./createSongEntity.mjs";
-import { response, handlePreflight } from "./handler_response.mjs";
-
-  /* escapted test for lambda service
-    "{\"username\":\"SBRIDGEWELL\",\"genre\":\"COUNTRY\",\"id\":\"Fr7oYjnt3bM\",\"stars\":5}"
-  */
-
-const handler = async (event) => {
-  if (event.httpMethod === "OPTIONS") {
-    return handlePreflight();
-  }
-
+import { bodyOf, keyText, text, rating, videoId, InputError, method, response, handlePreflight, failure } from "./handler_response.mjs";
+export const handler = async (event, context) => {
+  if (method(event) === "OPTIONS") return handlePreflight();
+  if (method(event) && method(event) !== "POST") return response(405, { message: "Use POST" });
   try {
-    const { username, genre, id, stars } = JSON.parse(event.body);
-
-    const song = new Song({
-      username,
-      genre,
-      id,
-      stars: Number(stars)  // Optional: normalize
-    });
-
-    const { error } = await createSongData(song);
-
-    return response(error ? 500 : 201, song.toItem());
-  } catch (error) {
-    return response(
-      error?.$metadata?.httpStatusCode || 500,
-      { message: error.message }
-    );
-  }
+    const body = bodyOf(event);
+    const item = new Song({ username: keyText(body.username, "username"), genre: keyText(body.genre, "genre"), id: videoId(body.id), stars: rating(body.stars) });
+    await createSongData(item);
+    return response(201, item.toItem());
+  } catch (error) { return failure(error, context); }
 };
-
-export { handler };

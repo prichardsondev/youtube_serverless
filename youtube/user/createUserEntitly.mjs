@@ -4,14 +4,14 @@ class User {
       this.email = email;
       this.name = name;
     }
-  
+
     key() {
       return {
         PK: `USER#${this.username}`,
         SK: `USER#${this.username}`,
       };
     }
-  
+
     toItem() {
       return {
         ...this.key(),
@@ -21,13 +21,13 @@ class User {
       };
     }
   }
-  
+
   const userFromItem = (attributes) => {
     return new User({
-      username: attributes.Username,
+      username: attributes.PK.slice("USER#".length),
       email: attributes.Email,
       name: attributes.Name,
     });
   };
-  
+
   export { User, userFromItem };

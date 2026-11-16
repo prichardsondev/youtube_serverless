@@ -1,0 +1,8 @@
+{
+  "httpMethod": "GET",
+  "pathParameters": {
+    "user": "NO_SUCH_STUDENT",
+    "genre": "ROCK",
+    "stars": "5"
+  }
+}
