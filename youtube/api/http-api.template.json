@@ -1,0 +1,249 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Classroom-only HTTP API over three EXISTING playlist Lambda functions. No table or function creation. No authentication; fictional data only.",
+  "Parameters": {
+    "UserFunctionName": {
+      "Type": "String",
+      "Description": "Existing user Lambda function name in this account and Region (no ARN or alias).",
+      "AllowedPattern": "[A-Za-z0-9_-]{1,64}"
+    },
+    "SongFunctionName": {
+      "Type": "String",
+      "Description": "Existing song Lambda function name in this account and Region (no ARN or alias).",
+      "AllowedPattern": "[A-Za-z0-9_-]{1,64}"
+    },
+    "PlaylistFunctionName": {
+      "Type": "String",
+      "Description": "Existing playlist Lambda function name in this account and Region (no ARN or alias).",
+      "AllowedPattern": "[A-Za-z0-9_-]{1,64}"
+    },
+    "FrontendOrigin": {
+      "Type": "String",
+      "Description": "Exact frontend origin, without a path or trailing slash; e.g. https://example.com or http://localhost:8000. CORS is not authentication.",
+      "AllowedPattern": "https://[A-Za-z0-9.-]+(:[0-9]+)?|http://localhost:[0-9]+"
+    }
+  },
+  "Resources": {
+    "PlaylistApi": {
+      "Type": "AWS::ApiGatewayV2::Api",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-playlist"
+        },
+        "ProtocolType": "HTTP",
+        "Description": "Classroom playlist HTTP API. Public demo with fictional data only.",
+        "CorsConfiguration": {
+          "AllowOrigins": [
+            {
+              "Ref": "FrontendOrigin"
+            }
+          ],
+          "AllowMethods": [
+            "GET",
+            "POST",
+            "OPTIONS"
+          ],
+          "AllowHeaders": [
+            "content-type"
+          ],
+          "MaxAge": 300
+        }
+      }
+    },
+    "AccessLogs": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/apigateway/${AWS::StackName}-playlist"
+        },
+        "RetentionInDays": 7
+      }
+    },
+    "ClassStage": {
+      "Type": "AWS::ApiGatewayV2::Stage",
+      "DependsOn": [
+        "UserRoute",
+        "SongRoute",
+        "PlaylistRoute",
+        "UserPermission",
+        "SongPermission",
+        "PlaylistPermission"
+      ],
+      "Properties": {
+        "ApiId": {
+          "Ref": "PlaylistApi"
+        },
+        "StageName": "class",
+        "AutoDeploy": true,
+        "DefaultRouteSettings": {
+          "ThrottlingBurstLimit": 5,
+          "ThrottlingRateLimit": 2
+        },
+        "AccessLogSettings": {
+          "DestinationArn": {
+            "Fn::GetAtt": [
+              "AccessLogs",
+              "Arn"
+            ]
+          },
+          "Format": "{\"requestId\": \"$context.requestId\", \"routeKey\": \"$context.routeKey\", \"status\": \"$context.status\", \"integrationError\": \"$context.integrationErrorMessage\", \"responseLength\": \"$context.responseLength\"}"
+        }
+      }
+    },
+    "UserIntegration": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "PlaylistApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationMethod": "POST",
+        "IntegrationUri": {
+          "Fn::Sub": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${UserFunctionName}"
+        },
+        "PayloadFormatVersion": "2.0",
+        "TimeoutInMillis": 12000
+      }
+    },
+    "UserRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "PlaylistApi"
+        },
+        "RouteKey": "POST /user",
+        "AuthorizationType": "NONE",
+        "Target": {
+          "Fn::Sub": "integrations/${UserIntegration}"
+        }
+      }
+    },
+    "UserPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "UserFunctionName"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceAccount": {
+          "Ref": "AWS::AccountId"
+        },
+        "SourceArn": {
+          "Fn::Sub": "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PlaylistApi}/class/POST/user"
+        }
+      }
+    },
+    "SongIntegration": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "PlaylistApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationMethod": "POST",
+        "IntegrationUri": {
+          "Fn::Sub": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${SongFunctionName}"
+        },
+        "PayloadFormatVersion": "2.0",
+        "TimeoutInMillis": 12000
+      }
+    },
+    "SongRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "PlaylistApi"
+        },
+        "RouteKey": "POST /song",
+        "AuthorizationType": "NONE",
+        "Target": {
+          "Fn::Sub": "integrations/${SongIntegration}"
+        }
+      }
+    },
+    "SongPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "SongFunctionName"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceAccount": {
+          "Ref": "AWS::AccountId"
+        },
+        "SourceArn": {
+          "Fn::Sub": "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PlaylistApi}/class/POST/song"
+        }
+      }
+    },
+    "PlaylistIntegration": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "PlaylistApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationMethod": "POST",
+        "IntegrationUri": {
+          "Fn::Sub": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${PlaylistFunctionName}"
+        },
+        "PayloadFormatVersion": "2.0",
+        "TimeoutInMillis": 12000
+      }
+    },
+    "PlaylistRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "PlaylistApi"
+        },
+        "RouteKey": "GET /playlist/{user}/{genre}/{stars}",
+        "AuthorizationType": "NONE",
+        "Target": {
+          "Fn::Sub": "integrations/${PlaylistIntegration}"
+        }
+      }
+    },
+    "PlaylistPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "PlaylistFunctionName"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceAccount": {
+          "Ref": "AWS::AccountId"
+        },
+        "SourceArn": {
+          "Fn::Sub": "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PlaylistApi}/class/GET/playlist/*/*/*"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ApiBaseUrl": {
+      "Description": "Set frontend/index.js stageUrl to this complete URL, including /class.",
+      "Value": {
+        "Fn::Sub": "${PlaylistApi.ApiEndpoint}/class"
+      }
+    },
+    "ApiId": {
+      "Value": {
+        "Ref": "PlaylistApi"
+      }
+    },
+    "AllowedFrontendOrigin": {
+      "Value": {
+        "Ref": "FrontendOrigin"
+      }
+    },
+    "AccessLogGroup": {
+      "Value": {
+        "Ref": "AccessLogs"
+      }
+    }
+  }
+}

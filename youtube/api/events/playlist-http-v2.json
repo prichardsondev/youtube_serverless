@@ -1,0 +1,16 @@
+{
+  "pathParameters": {
+    "user": "STUDENT01",
+    "genre": "ROCK",
+    "stars": "5"
+  },
+  "version": "2.0",
+  "routeKey": "GET /playlist/{user}/{genre}/{stars}",
+  "requestContext": {
+    "http": {
+      "method": "GET"
+    },
+    "requestId": "classroom-console-test"
+  },
+  "isBase64Encoded": false
+}
