@@ -1,79 +1,42 @@
-const stageUrl = "your-api-gateway-url"; // Replace with your API Gateway URL
-
-function getToken() {
-  return new URLSearchParams(window.location.hash.slice(1)).get("id_token");
+// Configure this when API Gateway is covered. Today's Lambda lab uses console tests.
+const stageUrl = "your-api-gateway-url";
+const status = (message) => { document.getElementById("status").textContent = message; };
+async function request(path, body) {
+  if (!stageUrl.startsWith("https://")) throw new Error("Set stageUrl in index.js to your deployed HTTPS API Gateway stage URL first.");
+  const result = await fetch(`${stageUrl.replace(/\/$/, "")}${path}`, {
+    method: body ? "POST" : "GET",
+    ...(body ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {})
+  });
+  const data = await result.json();
+  if (!result.ok) throw new Error(data.message || `HTTP ${result.status}`);
+  return data;
 }
-
 async function addUser() {
   const form = document.getElementById("userdata");
-  const formData = new FormData(form);
-  const name = formData.get("name");
-  const email = formData.get("email");
-  const username = formData.get("username");
-
-  try {
-    const response = await fetch(`${stageUrl}/user`, {
-      method: "POST",
-      mode: "cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, name })
-    });
-    console.log("User added:", await response.json());
-  } catch (err) {
-    console.error("Add user failed:", err);
-  }
+  if (!form.reportValidity()) return;
+  try { await request("/user", Object.fromEntries(new FormData(form))); status("User created."); }
+  catch (error) { status(error.message); }
 }
-
 async function addSong() {
   const form = document.getElementById("songdata");
-  const formData = new FormData(form);
-  const user = formData.get("user");
-  const songid = formData.get("songid");
-  const genre = formData.get("genre");
-  const stars = formData.get("stars");
-
-  try {
-    const response = await fetch(`${stageUrl}/song`, {
-      method: "POST",
-      mode: "cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: user,
-        genre,
-        id: songid,
-        stars: stars
-      })
-    });
-    console.log("Song added:", await response.json());
-  } catch (err) {
-    console.error("Add song failed:", err);
-  }
+  if (!form.reportValidity()) return;
+  const f = new FormData(form);
+  try { await request("/song", { username: f.get("user"), genre: f.get("genre"), id: f.get("songid"), stars: Number(f.get("stars")) }); status("Song created."); }
+  catch (error) { status(error.message); }
 }
-
 async function getPlaylist() {
-    const form = document.getElementById("playlistdata");
-    const formData = new FormData(form);
-    const user = formData.get("user");
-    const genre = formData.get("genre");
-    const stars = formData.get("stars");
-    const url = `${stageUrl}/playlist/${user}/${genre}/${stars}`;
-  
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        mode: "cors"
-        // leave off Authorization until Cognito is ready
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
-      }
-  
-      const data = await response.json();
-      console.log("Playlist:", data);
-      window.open(data.playlistEntity);
-    } catch (err) {
-      console.error("Get playlist failed:", err);
-    }
-  }
-  
+  const form = document.getElementById("playlistdata");
+  if (!form.reportValidity()) return;
+  const link = document.getElementById("playlist-link");
+  link.hidden = true;
+  const f = new FormData(form);
+  try {
+    const path = [f.get("user"), f.get("genre"), f.get("stars")].map(value => encodeURIComponent(value.trim())).join("/");
+    const data = await request(`/playlist/${path}`);
+    const url = new URL(data.playlistEntity);
+    if (url.protocol !== "https:" || url.hostname !== "www.youtube.com" || url.pathname !== "/watch_videos") throw new Error("Unexpected playlist URL.");
+    link.href = url.href;
+    link.hidden = false;
+    status("Playlist ready. Select the link to open YouTube.");
+  } catch (error) { status(error.message); }
+}

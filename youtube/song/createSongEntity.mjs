@@ -5,14 +5,14 @@ class Song {
       this.id = id;
       this.stars = stars;
     }
-  
+
     key() {
       return {
         PK: `USER#${this.username}`,
         SK: `GENRE#${this.genre}#SONG#${this.id}`,
       };
     }
-  
+
     toItem() {
       return {
         ...this.key(),
@@ -21,14 +21,14 @@ class Song {
       };
     }
   }
-  
+
   const songFromItem = (attributes) => {
     return new Song({
-      username: attributes.Username,
-      genre: attributes.Genre,
-      id: attributes.Id,
-      start: attributes.Stars
+      username: attributes.PK.slice("USER#".length),
+      genre: attributes.SK.split("#")[1],
+      id: attributes.SK.split("#")[3],
+      stars: Number(attributes.Stars.split("#").at(-1))
     });
   };
-  
+
   export { Song, songFromItem };
