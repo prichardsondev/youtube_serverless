@@ -1,0 +1,12 @@
+{
+  "body": "{\"username\": \"STUDENT01\", \"genre\": \"ROCK\", \"id\": \"Fr7oYjnt3bM\", \"stars\": 5}",
+  "version": "2.0",
+  "routeKey": "POST /song",
+  "requestContext": {
+    "http": {
+      "method": "POST"
+    },
+    "requestId": "classroom-console-test"
+  },
+  "isBase64Encoded": false
+}

@@ -46,7 +46,7 @@ Packaging rebuilds all three Lambda ZIPs and the frontend ZIP from current sourc
 
 Use Lambda proxy integration: `POST /user`, `POST /song`, `GET /playlist/{user}/{genre}/{stars}`. REST v1 and HTTP API v2 event methods are supported. Configure API Gateway CORS for the actual frontend origin and set `ALLOWED_ORIGIN` on the functions. Default `*` is for the classroom demo only; CORS does not authenticate users. HTTP APIs can manage CORS at the gateway instead of the function.
 
-Set `stageUrl` in `frontend/index.js` to the deployed HTTPS stage URL. The UI reports API errors and presents a clickable playlist link instead of opening a popup after an asynchronous request. YouTube controls video availability and playback; the existing `watch_videos` behavior is not a guaranteed public API.
+Paste the deployed HTTPS class-stage URL into the frontend’s API address field and choose Save address. No source-code edits are required. The UI reports API errors and presents a clickable playlist link instead of opening a popup after an asynchronous request. YouTube controls video availability and playback; the existing `watch_videos` behavior is not a guaranteed public API.
 
 Before exposing this as a real multi-user app, add authentication and enforce ownership from verified identity claims, rather than trusting the supplied username. This exercise has no account authentication and creating a profile is not creating a login.
 
